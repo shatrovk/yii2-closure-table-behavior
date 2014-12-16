@@ -248,12 +248,18 @@ class ClosureTable extends Behavior
     {
         $db = $this->owner->getDb();
 
+        $parent = $this->parent()->one();
+        if (!$parent) {
+            return 0;
+        }
+
         $tblName = $this->tableName;
         $depthAttribute = $this->depthAttribute;
         $childAttr = $this->childAttribute;
         $parentAttr = $this->parentAttribute;
 
-        $sql = "select {$depthAttribute} from {$tblName} where {$childAttr} = :id and {$parentAttr} = :id";
-        return $db->createCommand($sql, [':id' => $this->owner->primaryKey])->queryScalar();
+        $sql = "select {$depthAttribute} from {$tblName} where {$childAttr} = :id order by depth DESC";
+
+        return $db->createCommand($sql, [':id' => $this->owner->primaryKey, ])->queryScalar();
     }
 }
