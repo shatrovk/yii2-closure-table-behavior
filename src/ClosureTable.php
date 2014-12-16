@@ -164,9 +164,16 @@ class ClosureTable extends Behavior
      * @return int
      * @throws \Exception
      */
-    public function markAsRoot()
+    public function markAsRoot($primaryKey)
     {
-        // TODO: Check record entry and mark as root
+        $modelClass = $this->owner->className();
+        $db = $modelClass::getDb();
+
+        return $db->createCommand()->insert($this->tableName, [
+            $this->parentAttribute => $primaryKey,
+            $this->childAttribute => $primaryKey,
+            $this->depthAttribute => 0
+        ])->execute();
     }
 
     /**
@@ -231,5 +238,22 @@ class ClosureTable extends Behavior
     {
         $modelClass = $this->owner;
         return $modelClass::find()->moveTo($target, $this->owner->primaryKey);
+    }
+
+    /**
+     * Level of this node
+     * @return int
+     */
+    public function getTreeLevel()
+    {
+        $db = $this->owner->getDb();
+
+        $tblName = $this->tableName;
+        $depthAttribute = $this->depthAttribute;
+        $childAttr = $this->childAttribute;
+        $parentAttr = $this->parentAttribute;
+
+        $sql = "select {$depthAttribute} from {$tblName} where {$childAttr} = :id and {$parentAttr} = :id";
+        return $db->createCommand($sql, [':id' => $this->owner->primaryKey])->queryScalar();
     }
 }
