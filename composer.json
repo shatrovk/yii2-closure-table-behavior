@@ -21,7 +21,6 @@
         "issues": "https://github.com/biosin/yii2-closure-table-behavior/issues?state=open",
         "source": "https://github.com/biosin/yii2-closure-table-behavior/"
     },
-	"minimum-stability": "dev",
 	"require": {
         "php": ">=5.4.0",
 		"yiisoft/yii2": "*"
